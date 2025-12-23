@@ -10,6 +10,7 @@ type ExtendedTest = {
   foundPage: FoundPage
   auth: { jwt: string }
   orderId: string
+  deliveredStatus: string
 }
 
 export const test = base.extend<ExtendedTest>({
@@ -52,5 +53,23 @@ export const test = base.extend<ExtendedTest>({
     const responseData = await response.json()
     const orderId = responseData.id
     await use(String(orderId))
+  },
+
+  deliveredStatus: async ({ page, orderId }, use) => {
+    await page.route('**/orders/*', async (route) => {
+      await route.fulfill({
+        status: 200,
+        json: {
+          status: 'DELIVERED',
+          courierId: null,
+          customerName: 'customerName',
+          customerPhone: 'customerPhone',
+          comment: 'comment',
+          id: Number(orderId),
+        },
+      })
+    })
+
+    await use('DELIVERED')
   },
 })

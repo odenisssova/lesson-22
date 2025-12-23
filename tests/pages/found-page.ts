@@ -17,4 +17,10 @@ export default class FoundPage extends BasePage {
   async getActiveStatus() {
     return (await this.activeStatus.innerText()).trim()
   }
+
+  get deliveredDescription() {
+    return this.page.locator('h3', {
+      hasText: 'Order has been delivered',
+    })
+  }
 }
