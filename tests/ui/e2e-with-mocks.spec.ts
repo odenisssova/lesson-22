@@ -1,11 +1,9 @@
-import { expect, test } from '@playwright/test'
+import { test } from '../fixtures/basePage.fixture'
+import { expect } from '@playwright/test'
 import { LoginPage } from '../pages/login-page'
 import { OrderPage } from '../pages/order-page'
 import FoundPage from '../pages/found-page'
 import NotFoundPage from '../pages/not-found-page'
-
-const jwt =
-  'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJkZW5pc292YSIsImV4cCI6MTc2NTgzNzg3NSwiaWF0IjoxNzY1ODE5ODc1fQ.Udto73R_PvE5slIARh4KVJgIk5Rb2Lr7zPD_r_tOA83wbO7CWKTOxKgGjV6ceVgAacu8g6m6I8mQ87NxKH3t8w'
 
 test('TL-22-1 signIn with mocks', async ({ page }) => {
   const loginPage = new LoginPage(page)
@@ -18,7 +16,7 @@ test('TL-22-1 signIn with mocks', async ({ page }) => {
   await orderPage.checkElementVisibility(orderPage.trackButton)
 })
 
-test('TL-22-2 create and find order with mocks', async ({ context }) => {
+test('TL-22-2 create and find order with mocks', async ({ context, auth }) => {
   const newOrder = {
     status: 'OPEN',
     courierId: null,
@@ -29,7 +27,7 @@ test('TL-22-2 create and find order with mocks', async ({ context }) => {
   }
   await context.addInitScript((token) => {
     localStorage.setItem('jwt', token)
-  }, jwt)
+  }, auth.jwt)
   const page = await context.newPage()
   const loginPage = new LoginPage(page)
   const orderPage = new OrderPage(page)
@@ -67,7 +65,7 @@ test('TL-22-2 create and find order with mocks', async ({ context }) => {
   expect(await foundPage.orderName.innerText()).toBe(newOrder.customerName)
 })
 
-test('TL-22-3 find order success OPEN with mocks', async ({ context }) => {
+test('TL-22-3 find order success OPEN with mocks', async ({ context, auth }) => {
   const newOrder = {
     status: 'OPEN',
     courierId: null,
@@ -78,7 +76,7 @@ test('TL-22-3 find order success OPEN with mocks', async ({ context }) => {
   }
   await context.addInitScript((token) => {
     localStorage.setItem('jwt', token)
-  }, jwt)
+  }, auth.jwt)
   const page = await context.newPage()
   const orderPage = new OrderPage(page)
   const foundPage = new FoundPage(page)
@@ -100,7 +98,7 @@ test('TL-22-3 find order success OPEN with mocks', async ({ context }) => {
   expect(await foundPage.getActiveStatus()).toBe('OPEN')
 })
 
-test('TL-22-4 find order success DELIVERED with mocks', async ({ context }) => {
+test('TL-22-4 find order success DELIVERED with mocks', async ({ context, auth }) => {
   const newOrder = {
     status: 'DELIVERED',
     courierId: null,
@@ -111,7 +109,7 @@ test('TL-22-4 find order success DELIVERED with mocks', async ({ context }) => {
   }
   await context.addInitScript((token) => {
     localStorage.setItem('jwt', token)
-  }, jwt)
+  }, auth.jwt)
   const page = await context.newPage()
   const orderPage = new OrderPage(page)
   const foundPage = new FoundPage(page)
@@ -136,11 +134,11 @@ test('TL-22-4 find order success DELIVERED with mocks', async ({ context }) => {
   await expect(page.locator('.status-list__status.false').filter({ hasText: 'OPEN' })).toBeVisible()
 })
 
-test('TL-22-5 find order not found', async ({ context }) => {
+test('TL-22-5 find order not found', async ({ context, auth }) => {
   const id = 9999
   await context.addInitScript((token) => {
     localStorage.setItem('jwt', token)
-  }, jwt)
+  }, auth.jwt)
   const page = await context.newPage()
   const orderPage = new OrderPage(page)
   const notFoundPage = new NotFoundPage(page)
@@ -156,7 +154,7 @@ test('TL-22-5 find order not found', async ({ context }) => {
   await expect(notFoundPage.title).toHaveText('Order not found')
 })
 
-test('TL-22-6 unexpected 500 on order search', async ({ context }) => {
+test('TL-22-6 unexpected 500 on order search', async ({ context, auth }) => {
   const newOrder = {
     status: 'OPEN',
     courierId: null,
@@ -167,7 +165,7 @@ test('TL-22-6 unexpected 500 on order search', async ({ context }) => {
   }
   await context.addInitScript((token) => {
     localStorage.setItem('jwt', token)
-  }, jwt)
+  }, auth.jwt)
   const page = await context.newPage()
   const orderPage = new OrderPage(page)
   const notFoundPage = new NotFoundPage(page)
